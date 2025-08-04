@@ -102,4 +102,15 @@ const adminLogin = async (req, res) => {
   } 
 }
 
-export {signUp, logIn, adminLogin};
+const getUserAd = async (req, res) => {
+  try {
+    const user = await userVar.find({role: 'user'})
+    return res.json({ message: "Fetched successfully", user });
+  }
+  catch(err) {
+    res.status(500).json({ message: "Internal error", err });
+    console.log(err);
+  }
+}
+
+export {signUp, logIn, adminLogin, getUserAd};

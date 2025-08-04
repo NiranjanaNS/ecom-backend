@@ -17,15 +17,14 @@ const product = mongoose.Schema({
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'category',
-        required: true
+        ref: 'category'
+    },
+    description: {
+        type: String
     },
     created_on: {
         type: Date,
         default: Date.now
-    },
-    description: {
-        type: String
     }
 })
 

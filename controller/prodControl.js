@@ -36,4 +36,48 @@ const getProdId = async (req, res) => {
     }
 };
 
-export { uploads, getProd, getProdId }
+// add product
+const addProd = async (req, res) => {
+    try {
+        const { name, price, brand, category, description } = req.body;
+        const image = req.file.filename;
+        const add = await prodVar.create({ name, image, price, brand, category, description })
+        return res.json({ message: "Product added successfully", add })
+    }
+    catch(err) {
+        res.status(500).json({ err });
+        console.log(err)
+    }
+}
+
+// update product
+const upProd = async (req, res) => {
+    try {
+        const prodId = req.params.id;
+        const { name, price, brand, category, description } = req.body;
+        const find = await prodVar.findById(req.params.id)
+        const image = req.file ? req.file.filename : find.image;
+        const update = await prodVar.findByIdAndUpdate(prodId, { name, image, price, brand, category, description }, { new: true })
+        console.log(update)
+        return res.json({ message: "Product updated successfully", update })
+    }
+    catch(err) {
+        res.status(500).json({ err });
+        console.log(err)
+    }
+}
+
+const delProd = async (req, res) => {
+    try {
+        const prodId = req.params.id;
+        const del = await prodVar.findByIdAndDelete(prodId);
+        return res.json({ message: "Product successfully deleted" });
+    }
+    catch(err) {
+        res.status(500).json({ err });
+        console.log(err)
+    }
+}
+
+
+export { uploads, getProd, getProdId, addProd, upProd, delProd }

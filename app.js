@@ -55,7 +55,7 @@ app.use(prodRoutes);
 app.use(catRoutes);
 
 // image upload
-// app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('uploads'));
 
 // start server
 app.listen(PORT, () => {
