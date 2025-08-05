@@ -46,5 +46,12 @@ const delCat = async (req, res) => {
     }
 }
 
+const adminAuth = (req, res, next) => {
+    if (req.session.admin) {
+        next();
+    } else {
+        return res.status(403).json({ message: "Admin access denied" });
+    }
+};
 
-export { getCategories, addCat, upCat, delCat }
+export { getCategories, addCat, upCat, delCat, adminAuth }

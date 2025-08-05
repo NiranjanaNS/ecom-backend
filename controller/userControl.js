@@ -33,7 +33,6 @@ const signUp = async (req, res) => {
 // login function
 const logIn = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const checkUser = await userVar.findOne({ email });
 
@@ -59,8 +58,6 @@ const logIn = async (req, res) => {
     } else {
       return res.status(403).json({ message: "Unknown role" });
     }
-    res.redirect("/product")
-
   } catch (err) {
     console.error(err);
     res.status(500).json({message: "Internal server error."});
@@ -113,4 +110,12 @@ const getUserAd = async (req, res) => {
   }
 }
 
-export {signUp, logIn, adminLogin, getUserAd};
+const adminAuth = (req, res, next) => {
+    if (req.session.admin) {
+        next();
+    } else {
+        res.status(403).send("Entry restricted");
+    }
+};
+
+export {signUp, logIn, adminLogin, getUserAd, adminAuth};

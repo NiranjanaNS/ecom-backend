@@ -5,7 +5,8 @@ import MongoStore from 'connect-mongo';
 import dotenv from 'dotenv';
 import userRoutes from './router/userRoutes.js';
 import prodRoutes from './router/prodRoutes.js';
-import catRoutes from './router/catRoutes.js'
+import catRoutes from './router/catRoutes.js';
+import cartRoutes from './router/cartRoutes.js';
 
 // load env variables
 dotenv.config();
@@ -53,6 +54,7 @@ app.use((req, res, next) => {
 app.use(userRoutes);
 app.use(prodRoutes);
 app.use(catRoutes);
+app.use(cartRoutes);
 
 // image upload
 app.use('/uploads', express.static('uploads'));

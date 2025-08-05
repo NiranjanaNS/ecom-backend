@@ -1,5 +1,6 @@
 import multer from "multer";
 import prodVar from "../model/product.js";
+import catVar from "../model/category.js";
 
 // multer
 const storage = multer.diskStorage({
@@ -15,6 +16,8 @@ const uploads = multer({ storage: storage });
 // get all products
 const getProd = async (req, res) => {
     try {
+        const prodDet = await prodVar.findOne(req.params.id)
+        console.log(prodDet)
         const products = await prodVar.find();
         res.status(200).json({ products });  
     } catch (error) {
@@ -39,9 +42,19 @@ const getProdId = async (req, res) => {
 // add product
 const addProd = async (req, res) => {
     try {
-        const { name, price, brand, category, description } = req.body;
+        const { name, price, brand, categoryId, description } = req.body;
         const image = req.file.filename;
-        const add = await prodVar.create({ name, image, price, brand, category, description })
+        
+        // get category_id from category
+        const catDet = await catVar.findOne({ name: categoryId });
+        if (!catDet) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+        const catId = catDet._id
+
+        // insert product
+        const add = await prodVar.create({ name, image, price, brand, categoryId: catId, description })
+        console.log(add)
         return res.json({ message: "Product added successfully", add })
     }
     catch(err) {
@@ -54,10 +67,18 @@ const addProd = async (req, res) => {
 const upProd = async (req, res) => {
     try {
         const prodId = req.params.id;
-        const { name, price, brand, category, description } = req.body;
+        const { name, price, brand, categoryId, description } = req.body;
         const find = await prodVar.findById(req.params.id)
         const image = req.file ? req.file.filename : find.image;
-        const update = await prodVar.findByIdAndUpdate(prodId, { name, image, price, brand, category, description }, { new: true })
+
+        // get category_id from category
+        const catDet = await catVar.findOne({ name: categoryId });
+        if (!catDet) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+        const catId = catDet._id
+
+        const update = await prodVar.findByIdAndUpdate(prodId, { name, image, price, brand, categoryId: catId, description }, { new: true })
         console.log(update)
         return res.json({ message: "Product updated successfully", update })
     }
@@ -79,5 +100,22 @@ const delProd = async (req, res) => {
     }
 }
 
+const userAuth = (req, res, next) => {
+    if(req.session.user) {
+        next();
+    } else {
+        return res.status(403).json({ message: "User access denied" });
+    }
+}
+
+const adminAuth = (req, res, next) => {
+    if (req.session.admin) {
+        next();
+    } else {
+        return res.status(403).json({ message: "Admin access denied" });
+    }
+};
+
 
 export { uploads, getProd, getProdId, addProd, upProd, delProd }
+export { userAuth, adminAuth }

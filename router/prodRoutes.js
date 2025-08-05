@@ -8,9 +8,18 @@ import { addProd } from "../controller/prodControl.js";
 import { upProd } from "../controller/prodControl.js";
 import { delProd } from "../controller/prodControl.js";
 
+import { userAuth } from "../controller/prodControl.js";
+import { adminAuth } from "../controller/prodControl.js";
+
+// middleware for session(user)
+// router.use('/products', userAuth);
+
 // Routes to get products
 router.get("/products", getProd);
 router.get("/products/:id", getProdId);
+
+// middleware for session(admin)
+router.use('/admin', adminAuth);
 
 // Routes for CRUD of products
 router.get("/admin/products", getProd);
