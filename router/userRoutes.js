@@ -7,7 +7,7 @@ import { logIn } from "../controller/userControl.js";
 import { adminLogin } from "../controller/userControl.js";
 import { getUserAd } from "../controller/userControl.js";
 
-import { adminAuth } from "../controller/userControl.js";
+import { adminAuth } from "../controller/adminUserAuth.js";
 
 // Routes for user registration and login
 router.post("/register", signUp);
@@ -16,7 +16,7 @@ router.post("/login", logIn);
 // Route for admin login
 router.post("/admin/login", adminLogin);
 
-// middleware for session(admin)
+// middleware for session(admin) // router-middleware
 router.use("/admin", adminAuth);
 
 // Route to get userlist by admin

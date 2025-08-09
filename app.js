@@ -1,12 +1,13 @@
 import express from "express";
 import mongoose from "mongoose";
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import dotenv from 'dotenv';
-import userRoutes from './router/userRoutes.js';
-import prodRoutes from './router/prodRoutes.js';
-import catRoutes from './router/catRoutes.js';
-import cartRoutes from './router/cartRoutes.js';
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import dotenv from "dotenv";
+import userRoutes from "./router/userRoutes.js";
+import prodRoutes from "./router/prodRoutes.js";
+import catRoutes from "./router/catRoutes.js";
+import cartRoutes from "./router/cartRoutes.js";
+import orderRoutes from "./router/orderRoutes.js";
 
 // load env variables
 dotenv.config();
@@ -19,7 +20,7 @@ const PORT = process.env.PORT;
 const MONGO_URI = process.env.MONGO_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET;
 
-// middleware setup
+// middleware setup // application-middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -31,33 +32,35 @@ const connectToDatabase = async () => {
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
   }
-}
+};
 connectToDatabase();
 
 // session setup
-app.use(session({
+app.use(
+  session({
     secret: SESSION_SECRET,
     saveUninitialized: false,
     resave: false,
-    store: MongoStore.create({mongoUrl: MONGO_URI}),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } 
-}
-));
-// session middleware
+    store: MongoStore.create({ mongoUrl: MONGO_URI }),
+    cookie: { maxAge: 1000 * 60 * 60 * 24 },
+  })
+);
+// session middleware // flash message
 app.use((req, res, next) => {
-    res.locals.message = req.session.message
-    delete req.session.message
-    next()
-})
+  res.locals.message = req.session.message;
+  delete req.session.message;
+  next();
+});
 
 // routes
 app.use(userRoutes);
 app.use(prodRoutes);
 app.use(catRoutes);
 app.use(cartRoutes);
+app.use(orderRoutes);
 
 // image upload
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static("uploads"));
 
 // start server
 app.listen(PORT, () => {

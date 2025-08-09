@@ -11,47 +11,38 @@ const getCategories = async (req, res) => {
 };
 
 const addCat = async (req, res) => {
-    try {
-        const add = await catVar.create(req.body)
-        return res.json({ message: "Category added successfully", add })
-    }
-    catch(err) {
-        res.status(500).json({ err });
-        console.log(err)
-    }
-}
+  try {
+    const add = await catVar.create(req.body);
+    return res.json({ message: "Category added successfully", add });
+  } catch (err) {
+    res.status(500).json({ err });
+    console.log(err);
+  }
+};
 
 // update product
 const upCat = async (req, res) => {
-    try {
-        const catId = req.params.id;
-        const update = await catVar.findByIdAndUpdate(catId, req.body, { new: true })
-        return res.json({ message: "Category updated successfully", update })
-    }
-    catch(err) {
-        res.status(500).json({ err });
-        console.log(err)
-    }
-}
-
-const delCat = async (req, res) => {
-    try {
-        const catId = req.params.id;
-        await catVar.findByIdAndDelete(catId);
-        return res.json({ message: "Category successfully deleted" });
-    }
-    catch(err) {
-        res.status(500).json({ err });
-        console.log(err)
-    }
-}
-
-const adminAuth = (req, res, next) => {
-    if (req.session.admin) {
-        next();
-    } else {
-        return res.status(403).json({ message: "Admin access denied" });
-    }
+  try {
+    const catId = req.params.id;
+    const update = await catVar.findByIdAndUpdate(catId, req.body, {
+      new: true,
+    });
+    return res.json({ message: "Category updated successfully", update });
+  } catch (err) {
+    res.status(500).json({ err });
+    console.log(err);
+  }
 };
 
-export { getCategories, addCat, upCat, delCat, adminAuth }
+const delCat = async (req, res) => {
+  try {
+    const catId = req.params.id;
+    await catVar.findByIdAndDelete(catId);
+    return res.json({ message: "Category successfully deleted" });
+  } catch (err) {
+    res.status(500).json({ err });
+    console.log(err);
+  }
+};
+
+export { getCategories, addCat, upCat, delCat };

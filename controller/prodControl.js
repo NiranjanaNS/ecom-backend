@@ -4,118 +4,108 @@ import catVar from "../model/category.js";
 
 // multer
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); 
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-})
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
 const uploads = multer({ storage: storage });
 
 // get all products
 const getProd = async (req, res) => {
-    try {
-        const prodDet = await prodVar.findOne(req.params.id)
-        console.log(prodDet)
-        const products = await prodVar.find();
-        res.status(200).json({ products });  
-    } catch (error) {
-        return res.status(500).json({ message: "Error", error });
-    }
-}
+  try {
+    const prodDet = await prodVar.findOne(req.params.id);
+    console.log(prodDet);
+    const products = await prodVar.find();
+    res.status(200).json({ products });
+  } catch (error) {
+    return res.status(500).json({ message: "Error", error });
+  }
+};
 
 // get product by id
 const getProdId = async (req, res) => {
-    try {
-        const prodID = req.params.id
-        const prod = await prodVar.findById(prodID);
-        if (!prod) {
-        return res.status(404).json({ message: 'Product not found' });
-        }
-        res.status(200).json(prod);
-    } catch (err) {
-        res.status(500).json({ err });
+  try {
+    const prodID = req.params.id;
+    const prod = await prodVar.findById(prodID);
+    if (!prod) {
+      return res.status(404).json({ message: "Product not found" });
     }
+    res.status(200).json(prod);
+  } catch (err) {
+    res.status(500).json({ err });
+  }
 };
 
 // add product
 const addProd = async (req, res) => {
-    try {
-        const { name, price, brand, categoryId, description } = req.body;
-        const image = req.file.filename;
-        
-        // get category_id from category
-        const catDet = await catVar.findOne({ name: categoryId });
-        if (!catDet) {
-            return res.status(404).json({ message: 'Category not found' });
-        }
-        const catId = catDet._id
+  try {
+    const { name, price, brand, categoryId, description } = req.body;
+    const image = req.file.filename;
 
-        // insert product
-        const add = await prodVar.create({ name, image, price, brand, categoryId: catId, description })
-        console.log(add)
-        return res.json({ message: "Product added successfully", add })
+    // get category_id from category
+    const catDet = await catVar.findOne({ name: categoryId });
+    if (!catDet) {
+      return res.status(404).json({ message: "Category not found" });
     }
-    catch(err) {
-        res.status(500).json({ err });
-        console.log(err)
-    }
-}
+    const catId = catDet._id;
+
+    // insert product
+    const add = await prodVar.create({
+      name,
+      image,
+      price,
+      brand,
+      categoryId: catId,
+      description,
+    });
+    console.log(add);
+    return res.json({ message: "Product added successfully", add });
+  } catch (err) {
+    res.status(500).json({ err });
+    console.log(err);
+  }
+};
 
 // update product
 const upProd = async (req, res) => {
-    try {
-        const prodId = req.params.id;
-        const { name, price, brand, categoryId, description } = req.body;
-        const find = await prodVar.findById(req.params.id)
-        const image = req.file ? req.file.filename : find.image;
+  try {
+    const prodId = req.params.id;
+    const { name, price, brand, categoryId, description } = req.body;
+    const find = await prodVar.findById(req.params.id);
+    const image = req.file ? req.file.filename : find.image;
 
-        // get category_id from category
-        const catDet = await catVar.findOne({ name: categoryId });
-        if (!catDet) {
-            return res.status(404).json({ message: 'Category not found' });
-        }
-        const catId = catDet._id
+    // get category_id from category
+    const catDet = await catVar.findOne({ name: categoryId });
+    if (!catDet) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    const catId = catDet._id;
 
-        const update = await prodVar.findByIdAndUpdate(prodId, { name, image, price, brand, categoryId: catId, description }, { new: true })
-        console.log(update)
-        return res.json({ message: "Product updated successfully", update })
-    }
-    catch(err) {
-        res.status(500).json({ err });
-        console.log(err)
-    }
-}
-
-const delProd = async (req, res) => {
-    try {
-        const prodId = req.params.id;
-        const del = await prodVar.findByIdAndDelete(prodId);
-        return res.json({ message: "Product successfully deleted" });
-    }
-    catch(err) {
-        res.status(500).json({ err });
-        console.log(err)
-    }
-}
-
-const userAuth = (req, res, next) => {
-    if(req.session.user) {
-        next();
-    } else {
-        return res.status(403).json({ message: "User access denied" });
-    }
-}
-
-const adminAuth = (req, res, next) => {
-    if (req.session.admin) {
-        next();
-    } else {
-        return res.status(403).json({ message: "Admin access denied" });
-    }
+    const update = await prodVar.findByIdAndUpdate(
+      prodId,
+      { name, image, price, brand, categoryId: catId, description },
+      { new: true }
+    );
+    console.log(update);
+    return res.json({ message: "Product updated successfully", update });
+  } catch (err) {
+    res.status(500).json({ err });
+    console.log(err);
+  }
 };
 
+const delProd = async (req, res) => {
+  try {
+    const prodId = req.params.id;
+    await prodVar.findByIdAndDelete(prodId);
+    return res.json({ message: "Product successfully deleted" });
+  } catch (err) {
+    res.status(500).json({ err });
+    console.log(err);
+  }
+};
 
-export { uploads, getProd, getProdId, addProd, upProd, delProd }
-export { userAuth, adminAuth }
+export { uploads, getProd, getProdId, addProd, upProd, delProd };
