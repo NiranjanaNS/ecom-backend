@@ -4,11 +4,11 @@ import catVar from "../model/category.js";
 
 // multer
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (req, files, cb) => {
     cb(null, "uploads/");
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+  filename: (req, files, cb) => {
+    cb(null, Date.now() + "-" + files.originalname);
   },
 });
 const uploads = multer({ storage: storage });
@@ -43,14 +43,15 @@ const getProdId = async (req, res) => {
 const addProd = async (req, res) => {
   try {
     const { name, price, brand, categoryId, description } = req.body;
-    const image = req.file.filename;
+    console.log(req.files.filename)
+    // const image = req.files.filename;
+    const image = req.files.map(file => file.filename)
 
     // get category_id from category
-    const catDet = await catVar.findOne({ name: categoryId });
+    const catDet = await catVar.findOne({ _id: categoryId });
     if (!catDet) {
       return res.status(404).json({ message: "Category not found" });
     }
-    const catId = catDet._id;
 
     // insert product
     const add = await prodVar.create({
@@ -58,7 +59,7 @@ const addProd = async (req, res) => {
       image,
       price,
       brand,
-      categoryId: catId,
+      categoryId: categoryId,
       description,
     });
     console.log(add);

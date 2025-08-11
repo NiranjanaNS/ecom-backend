@@ -1,5 +1,6 @@
 import userVar from "../model/user.js";
 import bcrypt from "bcrypt";
+import multer from "multer";
 
 // register function
 const signUp = async (req, res) => {
@@ -39,6 +40,10 @@ const logIn = async (req, res) => {
   try {
     const checkUser = await userVar.findOne({ email });
 
+    if(checkUser.status !== "active") {
+      return res.status(401).json({ message: "Entry restricted by user" });
+    }
+
     if (!checkUser) {
       return res
         .status(401)
@@ -54,11 +59,11 @@ const logIn = async (req, res) => {
     }
 
     // session
-    const user = req.session.user = {
+    const user = (req.session.user = {
       id: checkUser._id,
       email: checkUser.email,
       role: checkUser.role,
-    };
+    });
 
     if (checkUser.role === "user") {
       return res.json({ message: "Logged in as user", user });
@@ -96,11 +101,11 @@ const adminLogin = async (req, res) => {
     }
 
     // session
-    const admin = req.session.admin = {
+    const admin = (req.session.admin = {
       id: checkUser._id,
       email: checkUser.email,
       role: checkUser.role,
-    };
+    });
 
     res.json({ message: "Logged in as admin", admin });
   } catch (err) {
@@ -119,4 +124,74 @@ const getUserAd = async (req, res) => {
   }
 };
 
-export { signUp, logIn, adminLogin, getUserAd };
+const getUser = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const user = await userVar.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "No user found" });
+    }
+
+    const image = user.image;
+    const name = user.name;
+    const email = user.email;
+
+    res.status(200).json({ image: image, name: name, email: email });
+  } catch (err) {
+    res.status(500).json({ err });
+  }
+};
+
+// multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const uploads = multer({ storage: storage });
+
+const upUser = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const image = req.file ? req.file.filename : find.image;
+
+    const update = await userVar.findByIdAndUpdate(
+      userId,
+      { image },
+      { new: true }
+    );
+    console.log(update);
+    return res.json({ message: "User details updated successfully", image });
+  } catch (err) {
+    res.status(500).json({ err });
+    console.log(err);
+  }
+};
+
+const loginperm = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const userId = req.params.id;
+
+    const user = await userVar.findByIdAndUpdate(
+      { _id: userId },
+      { status: status }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json({ message: "User status updated successfully", user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error", err });
+  }
+};
+
+export { signUp, logIn, adminLogin };
+export { uploads };
+export { getUserAd, getUser, upUser, loginperm };

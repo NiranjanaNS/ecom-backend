@@ -7,12 +7,11 @@ const addOrder = async (req, res) => {
     const userId = req.session.user.id;
     const { prodId } = req.body;
 
-    const product = await prodVar.findOne({ name: prodId });
+    const product = await prodVar.findOne({ _id: prodId });
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
-
-    const prod_id = product._id;
+    const name = product.name;
     const price = product.price;
 
     const cart = await cartVar.findOne({ userId });
@@ -21,7 +20,7 @@ const addOrder = async (req, res) => {
     }
 
     const existingItem = cart.items.find(
-      (item) => item.prodId.toString() === prod_id.toString()
+      (item) => item.prodId.toString() === prodId.toString()
     );
     if (!existingItem) {
       return res.status(404).json({ message: "Item not found" });
@@ -31,8 +30,8 @@ const addOrder = async (req, res) => {
 
     const order = [
       {
-        prodId: prod_id,
-        productName: prodId,
+        prodId: prodId,
+        productName: name,
         quantity: existingItem.quantity,
         price,
         subtotal,
@@ -131,7 +130,7 @@ const delOrder = async (req, res) => {
         return res.status(404).json({ message: "No permission to delete" })
     }
 
-    const del = await orderVar.findByIdAndDelete({ _id: orderid });
+    await orderVar.findByIdAndDelete({ _id: orderid });
 
     return res.json({ message: "Order deleted successfully", order });
   } catch (err) {

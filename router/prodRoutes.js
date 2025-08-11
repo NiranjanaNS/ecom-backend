@@ -19,8 +19,8 @@ router.use("/admin", adminAuth);
 
 // Routes for CRUD of products
 router.get("/admin/products", getProd);
-router.post("/admin/products", uploads.single("image"), addProd);
-router.put("/admin/products/:id", uploads.single("image"), upProd);
+router.post("/admin/products", uploads.array("image", 5), addProd);
+router.put("/admin/products/:id", uploads.array("image", 10), upProd);
 router.delete("/admin/products/:id", delProd);
 
 export default router;
