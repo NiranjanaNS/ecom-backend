@@ -5,7 +5,62 @@ import cartVar from "../model/cart.js";
 const addOrder = async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const { prodId } = req.body;
+
+    const cart = await cartVar.findOne({ userId });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart is empty" });
+    }
+
+    const prodIds = cart.items.map((item) => item.prodId);
+
+    const products = await prodVar.find({ _id: { $in: prodIds } });
+
+    let total = 0;
+    let orderItems = [];
+
+    for (let cartItem of cart.items) {
+      const productData = products.find(
+        (p) => p._id.toString() === cartItem.prodId.toString()
+      );
+
+      if (!productData) {
+        return res.status(403).json({ message: "product data" });
+      }
+
+      const subtotal = productData.price * cartItem.quantity;
+      total += subtotal;
+
+      orderItems.push({
+        prodId: productData._id,
+        productName: productData.name,
+        price: productData.price,
+        quantity: cartItem.quantity,
+        subtotal,
+      });
+    }
+
+    const newOrder = await orderVar.create({
+      userId,
+      items: orderItems,
+      total,
+    });
+
+    await cartVar.deleteOne({ userId });
+
+    res.json({
+      message: "Order placed successfully",
+      order: newOrder,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error placing order", error: err });
+  }
+};
+
+const addOrderItem = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const prodId = req.params.id;
 
     const product = await prodVar.findOne({ _id: prodId });
     if (!product) {
@@ -59,9 +114,9 @@ const getOrder = async (req, res) => {
   try {
     const userId = req.session.user.id;
 
-    const orders = await orderVar.find({ userId });
+    const orders = await orderVar.find({ userId: userId });
 
-    if (!orders) {
+    if (!orders.length) {
       return res.status(404).json({ message: "No orders found" });
     }
 
@@ -127,7 +182,7 @@ const delOrder = async (req, res) => {
     const cancel = order.status == "cancelled";
 
     if (!cancel) {
-        return res.status(404).json({ message: "No permission to delete" })
+      return res.status(404).json({ message: "No permission to delete" });
     }
 
     await orderVar.findByIdAndDelete({ _id: orderid });
@@ -135,11 +190,11 @@ const delOrder = async (req, res) => {
     return res.json({ message: "Order deleted successfully", order });
   } catch (err) {
     res.status(500).json({ message: "error", err });
-  };
+  }
 };
 
 const cancelOrder = async (req, res) => {
-    try {
+  try {
     const orderid = req.params.id;
 
     const order = await orderVar.findByIdAndUpdate(
@@ -152,10 +207,15 @@ const cancelOrder = async (req, res) => {
     }
 
     return res.json({ message: "Order cancelled successfully", order });
-    }
-    catch (err) {
-
-    };
+  } catch (err) {}
 };
 
-export { addOrder, getOrderId, getOrder, updateOrder, delOrder, cancelOrder };
+export {
+  addOrder,
+  addOrderItem,
+  getOrderId,
+  getOrder,
+  updateOrder,
+  delOrder,
+  cancelOrder,
+};

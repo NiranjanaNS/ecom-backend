@@ -160,7 +160,7 @@ const getCart = async (req, res) => {
         $match: { userId: userId },
       },
       {
-        $unwind: { path: "$items" },
+        $unwind: "$items",
       },
       {
         $lookup: {
@@ -176,7 +176,7 @@ const getCart = async (req, res) => {
       {
         $addFields: {
           "items.productName": "$productInfo.name",
-          "items.price": { $toDouble: "$productInfo.price" },
+          "items.price":   "$productInfo.price" ,
           "items.subtotal": {
             $multiply: [
               { $toInt: "$items.quantity" },
@@ -243,7 +243,7 @@ const getCartItem = async (req, res) => {
         $match: { userId: userId },
       },
       {
-        $unwind: { path: "$items" },
+        $unwind: "$items" ,
       },
       {
         $match: { "items.prodId": prodId },

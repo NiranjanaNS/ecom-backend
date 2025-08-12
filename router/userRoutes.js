@@ -28,7 +28,7 @@ router.post("/admin/login", adminLogin);
 
 // user CRUD
 router.get("/user/profile", getUser);
-router.post("/user/profile/upload", uploads.single("image"), upUser);
+router.put("/user/profile/upload", uploads.single("image"), upUser);
 
 
 // middleware for session(admin) // router-middleware

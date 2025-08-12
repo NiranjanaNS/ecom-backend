@@ -41,7 +41,7 @@ const logIn = async (req, res) => {
     const checkUser = await userVar.findOne({ email });
 
     if(checkUser.status !== "active") {
-      return res.status(401).json({ message: "Entry restricted by user" });
+      return res.status(401).json({ message: "Entry restricted by admin" });
     }
 
     if (!checkUser) {
@@ -58,12 +58,19 @@ const logIn = async (req, res) => {
         .json({ message: "Incorrect password. Please try again." });
     }
 
-    // session
-    const user = (req.session.user = {
-      id: checkUser._id,
+    const user = {
+      name: checkUser.name,
       email: checkUser.email,
+    };
+    
+    // session
+    req.session.user = {
+      id: checkUser._id,
+      name: checkUser.name,
+      email: checkUser.email,
+      password: checkUser.password,
       role: checkUser.role,
-    });
+    };
 
     if (checkUser.role === "user") {
       return res.json({ message: "Logged in as user", user });
@@ -100,12 +107,19 @@ const adminLogin = async (req, res) => {
       return res.status(403).json({ message: "Not authorized as admin" });
     }
 
-    // session
-    const admin = (req.session.admin = {
-      id: checkUser._id,
+    const admin = {
+      name: checkUser.name,
       email: checkUser.email,
+    };
+    
+    // session
+    req.session.admin = {
+      id: checkUser._id,
+      name: checkUser.name,
+      email: checkUser.email,
+      password: checkUser.password,
       role: checkUser.role,
-    });
+    };
 
     res.json({ message: "Logged in as admin", admin });
   } catch (err) {
