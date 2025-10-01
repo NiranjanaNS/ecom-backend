@@ -129,6 +129,34 @@ const getOrder = async (req, res) => {
   }
 };
 
+const getOrderAdmin = async (req, res) => {
+  try {
+    const orders = await orderVar.find({}); 
+
+    if (!orders.length) {
+      return res.status(404).json({ message: "No orders found" });
+    }
+    return res.status(200).json({ message: "Orders fetched successfully", orders });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error", err });
+  }
+
+
+try {
+    // For admin, fetch all orders
+    const orders = await orderVar.find({}); 
+    return res.status(200).json({ message: "Orders fetched successfully", orders });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error", err });
+  }
+
+
+
+
+};
+
 const getOrderId = async (req, res) => {
   try {
     const orderid = req.params.id;
@@ -215,6 +243,7 @@ export {
   addOrderItem,
   getOrderId,
   getOrder,
+  getOrderAdmin,
   updateOrder,
   delOrder,
   cancelOrder,

@@ -13,6 +13,18 @@ const storage = multer.diskStorage({
 });
 const uploads = multer({ storage: storage });
 
+const getProductsByCategory = async (req, res) => {
+  try {
+    const categoryId = req.params.id;
+
+    const products = await prodVar.find({ categoryId: categoryId });
+    res.status(200).json(products);
+  } catch (err) {
+    console.error("Error in getProductsByCategory:", err); 
+    res.status(500).json({ message: "Error fetching products by category", error: err.message });
+  }
+};
+
 // get all products
 const getProd = async (req, res) => {
   try {
@@ -41,11 +53,12 @@ const getProdId = async (req, res) => {
 
 // add product
 const addProd = async (req, res) => {
+  console.log("added")
   try {
     const { name, price, brand, categoryId, description } = req.body;
-    console.log(req.files.filename)
+    console.log(req.files)
     // const image = req.files.filename;
-    const image = req.files.map(file => file.filename)
+    const images = req.files.map(file => file.filename)
 
     // get category_id from category
     const catDet = await catVar.findOne({ _id: categoryId });
@@ -56,7 +69,7 @@ const addProd = async (req, res) => {
     // insert product
     const add = await prodVar.create({
       name,
-      image,
+      image: images,
       price,
       brand,
       categoryId: categoryId,
@@ -75,28 +88,43 @@ const upProd = async (req, res) => {
   try {
     const prodId = req.params.id;
     const { name, price, brand, categoryId, description } = req.body;
-    const find = await prodVar.findById(req.params.id);
+
+    // Find the product first
+    const find = await prodVar.findById(prodId);
+    if (!find) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // Handle image: use new upload if available
     const image = req.file ? req.file.filename : find.image;
 
-    // get category_id from category
-    const catDet = await catVar.findOne({ name: categoryId });
+    // Validate category exists using its _id
+    const catDet = await catVar.findById(categoryId);
     if (!catDet) {
       return res.status(404).json({ message: "Category not found" });
     }
-    const catId = catDet._id;
 
+    // Update product
     const update = await prodVar.findByIdAndUpdate(
       prodId,
-      { name, image, price, brand, categoryId: catId, description },
+      {
+        name,
+        image,
+        price,
+        brand,
+        categoryId, // already _id, no need for lookup
+        description,
+      },
       { new: true }
     );
-    console.log(update);
+
     return res.json({ message: "Product updated successfully", update });
   } catch (err) {
-    res.status(500).json({ err });
-    console.log(err);
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err });
   }
 };
+
 
 const delProd = async (req, res) => {
   try {
@@ -109,4 +137,4 @@ const delProd = async (req, res) => {
   }
 };
 
-export { uploads, getProd, getProdId, addProd, upProd, delProd };
+export { uploads, getProductsByCategory, getProd, getProdId, addProd, upProd, delProd };

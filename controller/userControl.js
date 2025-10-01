@@ -73,7 +73,7 @@ const logIn = async (req, res) => {
     };
 
     if (checkUser.role === "user") {
-      return res.json({ message: "Logged in as user", user });
+      return res.json({ message: "Logged in as user", user, success : true });
     } else {
       return res.status(403).json({ message: "Unknown role" });
     }
@@ -86,7 +86,6 @@ const logIn = async (req, res) => {
 // admin login function
 const adminLogin = async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const checkUser = await userVar.findOne({ email });
     if (!checkUser) {
@@ -121,7 +120,7 @@ const adminLogin = async (req, res) => {
       role: checkUser.role,
     };
 
-    res.json({ message: "Logged in as admin", admin });
+    res.json({ message: "Logged in as admin", admin, success: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error." });
@@ -206,6 +205,40 @@ const loginperm = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { oldPassword, newPassword } = req.body;
+
+    const user = await userVar.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Check old password
+    const match = await bcrypt.compare(oldPassword, user.password);
+    if (!match) {
+      return res.status(400).json({ message: "Old password is incorrect" });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error updating password" });
+  }
+};
+
+const logout = async (req, res) => {
+  req.session.destroy();
+  res.json({ message: "Logged out" });
+}
+ 
+
 export { signUp, logIn, adminLogin };
 export { uploads };
 export { getUserAd, getUser, upUser, loginperm };
+export { changePassword }
+export { logout }

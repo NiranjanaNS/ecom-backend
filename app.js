@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import dotenv from "dotenv";
+import cors from "cors";
 import userRoutes from "./router/userRoutes.js";
 import prodRoutes from "./router/prodRoutes.js";
 import catRoutes from "./router/catRoutes.js";
@@ -19,6 +20,12 @@ const app = express();
 const PORT = process.env.PORT;
 const MONGO_URI = process.env.MONGO_URI;
 const SESSION_SECRET = process.env.SESSION_SECRET;
+
+// cors
+app.use(cors({
+  origin: 'http://13.51.121.100',
+  credentials: true,
+}));
 
 // middleware setup // application-middleware
 app.use(express.json());
@@ -42,7 +49,7 @@ app.use(
     saveUninitialized: false,
     resave: false,
     store: MongoStore.create({ mongoUrl: MONGO_URI }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24 },
+    cookie: { maxAge: 1000 * 60 * 60 * 24, sameSite: 'lax', secure: false },
   })
 );
 // session middleware // flash message
@@ -52,12 +59,16 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get("/", (req, res) => {
+  res.send("🚀 Server is running and connected to MongoDB Atlas!");
+});
+
 // routes
-app.use(userRoutes);
-app.use(prodRoutes);
-app.use(catRoutes);
-app.use(cartRoutes);
-app.use(orderRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/products", prodRoutes);
+app.use("/api/categories", catRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
 
 // image upload
 app.use("/uploads", express.static("uploads"));

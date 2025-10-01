@@ -8,11 +8,12 @@ import { getOrderId } from "../controller/orderControl.js";
 import { updateOrder } from "../controller/orderControl.js";
 import { cancelOrder } from "../controller/orderControl.js";
 import { delOrder } from "../controller/orderControl.js";
+import { getOrderAdmin } from "../controller/orderControl.js";
 
 import { adminAuth } from "../controller/adminUserAuth.js";
-// import { userAuth } from "../controller/adminUserAuth.js";
+import { userAuth } from "../controller/adminUserAuth.js";
 
-// router.use("/order", userAuth);
+router.use("/orders", userAuth);
 router.post("/orders", addOrder)
 router.post("/orders/:id", addOrderItem);
 router.get("/orders", getOrder);
@@ -21,7 +22,7 @@ router.put("/orders/:id", cancelOrder);
 
 router.use("/admin", adminAuth)
 
-router.get("/admin/orders", getOrder);
+router.get("/admin/orders", getOrderAdmin);
 router.put("/admin/orders/:id", updateOrder);
 router.delete("/admin/orders/:id", delOrder);
 
