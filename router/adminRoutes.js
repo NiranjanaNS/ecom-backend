@@ -5,7 +5,6 @@ import { adminLogin } from "../controller/userControl.js";
 import { getUserAd } from "../controller/userControl.js";
 import { loginperm } from "../controller/userControl.js";
 import { adminAuth } from "../controller/adminUserAuth.js";
-import router from "./userRoutes.js";
 
 
 // Route for admin login
