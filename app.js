@@ -4,6 +4,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import dotenv from "dotenv";
 import cors from "cors";
+import adminRoutes from "./router/adminRoutes.js"
 import userRoutes from "./router/userRoutes.js";
 import prodRoutes from "./router/prodRoutes.js";
 import catRoutes from "./router/catRoutes.js";
@@ -64,6 +65,7 @@ app.get("/", (req, res) => {
 });
 
 // routes
+app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/products", prodRoutes);
 app.use("/api/categories", catRoutes);
