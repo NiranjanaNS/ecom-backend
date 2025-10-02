@@ -9,7 +9,7 @@ import { delCat } from "../controller/catController.js";
 import { adminAuth } from "../controller/adminUserAuth.js";
 
 // Route to get category
-router.get("/categories", getCategories);
+router.get("/", getCategories);
 
 // middleware for session(admin)
 router.use("/admin", adminAuth);

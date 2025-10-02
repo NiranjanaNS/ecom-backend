@@ -12,8 +12,8 @@ import { delProd } from "../controller/prodControl.js";
 import { adminAuth } from "../controller/adminUserAuth.js";
 
 // Routes to get products
-router.get("/products", getProd);
-router.get("/products/:id", getProdId);
+router.get("/", getProd);
+router.get("/:id", getProdId);
 router.get("/categories/:id/products", getProductsByCategory);
 
 // middleware for session(admin)

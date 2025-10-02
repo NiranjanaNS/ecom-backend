@@ -27,11 +27,11 @@ router.post("/login", logIn);
 // Route for admin login
 router.post("/admin/login", adminLogin);
 
-router.use("/user", userAuth)
+router.use("/", userAuth)
 // user CRUD
-router.get("/user/profile", getUser);
-router.put("/user/profile/upload", uploads.single("image"), upUser);
-router.put("/user/changepassword", changePassword)
+router.get("/profile", getUser);
+router.put("/profile/upload", uploads.single("image"), upUser);
+router.put("/changepassword", changePassword)
 router.post("/logout", logout)
 
 

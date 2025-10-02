@@ -10,13 +10,13 @@ import { getCartItem } from "../controller/cartController.js";
 
 import { userAuth } from "../controller/adminUserAuth.js";
 
-router.use("/cart", userAuth);
+router.use("/", userAuth);
 
-router.post("/cart", addCart);
-router.put("/cart/:id", updateCart);
-router.delete("/cart", deleteCart);
-router.delete("/cart/delete/:id", deleteCartItem);
-router.get("/cart", getCart);
-router.get("/cart/:id", getCartItem);
+router.post("/", addCart);
+router.put("/:id", updateCart);
+router.delete("/", deleteCart);
+router.delete("/delete/:id", deleteCartItem);
+router.get("/", getCart);
+router.get("/:id", getCartItem);
 
 export default router;
