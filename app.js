@@ -66,12 +66,12 @@ app.get("/", (req, res) => {
 // routes
 app.use("/api/users", userRoutes);
 app.use("/api/products", prodRoutes);
-app.use("/api/categories", catRoutes);
+app.use("/categories", catRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 
 // image upload
-app.use("/uploads", express.static("uploads"));
+app.use("/api", express.static("uploads"));
 
 // start server
 app.listen(PORT, () => {
