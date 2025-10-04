@@ -4,6 +4,7 @@ const router = express.Router();
 import { adminLogin } from "../controller/userControl.js";
 import { getUserAd } from "../controller/userControl.js";
 import { loginperm } from "../controller/userControl.js";
+
 import { adminAuth } from "../controller/adminUserAuth.js";
 
 
@@ -11,7 +12,7 @@ import { adminAuth } from "../controller/adminUserAuth.js";
 router.post("/login", adminLogin);
 
 // middleware for session(admin) // router-middleware
-router.use("/", adminAuth);
+router.use(adminAuth);
 
 // Route to get userlist by admin
 router.get("/users", getUserAd);

@@ -17,7 +17,7 @@ router.get("/:id", getProdId);
 router.get("/categories/:id/products", getProductsByCategory);
 
 // middleware for session(admin)
-router.use("/admin", adminAuth);
+router.use(adminAuth);
 
 // Routes for CRUD of products
 router.get("/admin/products", getProd);

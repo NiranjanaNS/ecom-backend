@@ -12,7 +12,7 @@ import { adminAuth } from "../controller/adminUserAuth.js";
 router.get("/", getCategories);
 
 // middleware for session(admin)
-router.use("/admin", adminAuth);
+router.use(adminAuth);
 
 // Routes for CRUD of category
 router.get("/admin/categories", getCategories);

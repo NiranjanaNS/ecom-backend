@@ -21,7 +21,7 @@ router.post("/register", signUp);
 router.post("/login", logIn);
 
 
-router.use("/", userAuth)
+router.use(userAuth)
 // user CRUD
 router.get("/profile", getUser);
 router.put("/profile/upload", uploads.single("image"), upUser);

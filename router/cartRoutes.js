@@ -10,7 +10,7 @@ import { getCartItem } from "../controller/cartController.js";
 
 import { userAuth } from "../controller/adminUserAuth.js";
 
-router.use("/user", userAuth);
+router.use(userAuth);
 
 router.post("/", addCart);
 router.put("/:id", updateCart);

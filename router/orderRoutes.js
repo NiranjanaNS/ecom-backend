@@ -13,7 +13,7 @@ import { getOrderAdmin } from "../controller/orderControl.js";
 import { adminAuth } from "../controller/adminUserAuth.js";
 import { userAuth } from "../controller/adminUserAuth.js";
 
-router.use("/user", userAuth);
+router.use(userAuth);
 
 router.post("/", addOrder)
 router.post("/:id", addOrderItem);
@@ -21,7 +21,7 @@ router.get("/", getOrder);
 router.get("/:id", getOrderId);
 router.put("/:id", cancelOrder);
 
-router.use("/admin", adminAuth)
+router.use(adminAuth)
 
 router.get("/admin/orders", getOrderAdmin);
 router.put("/admin/orders/:id", updateOrder);
