@@ -95,13 +95,17 @@ const upProd = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Handle image: use new upload if available
-    const image = req.file ? req.file.filename : find.image;
-
     // Validate category exists using its _id
     const catDet = await catVar.findById(categoryId);
     if (!catDet) {
       return res.status(404).json({ message: "Category not found" });
+    }
+
+    // Handle image: use new upload if available
+    // const image = req.file ? req.file.filename : find.image;
+    let images = find.image;
+    if (req.files && req.files.length > 0) {
+      images = req.files.map(file => file.filename);
     }
 
     // Update product
@@ -109,10 +113,10 @@ const upProd = async (req, res) => {
       prodId,
       {
         name,
-        image,
+        image : images,
         price,
         brand,
-        categoryId, // already _id, no need for lookup
+        categoryId, 
         description,
       },
       { new: true }
