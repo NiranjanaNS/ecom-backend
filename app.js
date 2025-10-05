@@ -50,7 +50,7 @@ app.use(
     saveUninitialized: false,
     resave: false,
     store: MongoStore.create({ mongoUrl: MONGO_URI }),
-    cookie: { maxAge: 1000 * 60 * 60 * 24, sameSite: 'lax', secure: false },
+    cookie: { maxAge: 1000 * 60 * 60 * 24, httpOnly: true, secure: false },
   })
 );
 // session middleware // flash message
