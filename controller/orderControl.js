@@ -4,6 +4,9 @@ import cartVar from "../model/cart.js";
 
 const addOrder = async (req, res) => {
   try {
+    console.log("Session:", req.session);
+    console.log("User:", req.session?.user);
+
     const userId = req.session.user.id;
 
     const cart = await cartVar.findOne({ userId });
@@ -131,30 +134,29 @@ const getOrder = async (req, res) => {
 
 const getOrderAdmin = async (req, res) => {
   try {
-    const orders = await orderVar.find({}); 
+    const orders = await orderVar.find({});
 
     if (!orders.length) {
       return res.status(404).json({ message: "No orders found" });
     }
-    return res.status(200).json({ message: "Orders fetched successfully", orders });
+    return res
+      .status(200)
+      .json({ message: "Orders fetched successfully", orders });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error", err });
   }
 
-
-try {
+  try {
     // For admin, fetch all orders
-    const orders = await orderVar.find({}); 
-    return res.status(200).json({ message: "Orders fetched successfully", orders });
+    const orders = await orderVar.find({});
+    return res
+      .status(200)
+      .json({ message: "Orders fetched successfully", orders });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error", err });
   }
-
-
-
-
 };
 
 const getOrderId = async (req, res) => {
