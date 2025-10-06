@@ -1,6 +1,7 @@
 import orderVar from "../model/order.js";
 import prodVar from "../model/product.js";
 import cartVar from "../model/cart.js";
+
 import multer from "multer";
 import mongoose from "mongoose";
 
@@ -27,7 +28,6 @@ const addOrder = async (req, res) => {
       return res.status(404).json({ message: "Cart is empty" });
     }
 
-    // Convert prodIds to ObjectId
     const prodIds = cart.items.map(i => new mongoose.Types.ObjectId(i.prodId));
     const products = await prodVar.find({ _id: { $in: prodIds } });
     if (!products.length) {
@@ -42,7 +42,7 @@ const addOrder = async (req, res) => {
         p => p._id.toString() === cartItem.prodId.toString()
       );
 
-      if (!productData) continue; // Skip if product not found
+      if (!productData) continue; 
 
       const price = Number(productData.price);
       const quantity = Number(cartItem.quantity);
