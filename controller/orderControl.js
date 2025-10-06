@@ -17,10 +17,9 @@ const uploads = multer({ storage: storage });
 
 const addOrder = async (req, res) => {
   try {
-    if (!req.session.user.id) {
+    if (!req.session?.user?.id) {
       return res.status(403).json({ message: "User not logged in" });
     }
-console.log(req.session.user.id, req.session?.user?.id)
 
     const userId = req.session.user.id;
     const cart = await cartVar.findOne({ userId });
@@ -28,15 +27,12 @@ console.log(req.session.user.id, req.session?.user?.id)
       return res.status(404).json({ message: "Cart is empty" });
     }
 
-console.log(userId, cart)
-
+    // Convert prodIds to ObjectId
     const prodIds = cart.items.map(i => new mongoose.Types.ObjectId(i.prodId));
     const products = await prodVar.find({ _id: { $in: prodIds } });
     if (!products.length) {
       return res.status(404).json({ message: "Products not found in database" });
     }
-
-console.log(prodIds, products)
 
     let total = 0;
     const orderItems = [];
@@ -46,23 +42,21 @@ console.log(prodIds, products)
         p => p._id.toString() === cartItem.prodId.toString()
       );
 
-console.log(cartItem, cart.items, productData)
+      if (!productData) continue; // Skip if product not found
 
-      if (!productData) continue;
-
-      const subtotal = productData.price * cartItem.quantity;
+      const price = Number(productData.price);
+      const quantity = Number(cartItem.quantity);
+      const subtotal = price * quantity;
       total += subtotal;
 
       orderItems.push({
         prodId: productData._id,
         productName: productData.name,
-        price: productData.price,
-        quantity: cartItem.quantity,
+        price,
+        quantity,
         subtotal,
       });
     }
-
-console.log(subtotal, orderItems)
 
     if (!orderItems.length) {
       return res.status(403).json({ message: "No valid products to place order" });
@@ -84,7 +78,7 @@ console.log(subtotal, orderItems)
 
   } catch (err) {
     console.error("Error in addOrder:", err);
-    return res.status(500).json({ message: "Error placing order", error: err });
+    return res.status(500).json({ message: "Error placing order", error: err.message });
   }
 };
 
