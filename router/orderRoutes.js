@@ -16,7 +16,7 @@ import { userAuth } from "../controller/adminUserAuth.js";
 
 router.use(userAuth);
 
-router.post("/", uploads.array("image", 10), addOrder)
+router.post("/add", uploads.array("image", 10), addOrder)
 router.post("/:id", addOrderItem);
 router.get("/", getOrder);
 router.get("/:id", getOrderId);
