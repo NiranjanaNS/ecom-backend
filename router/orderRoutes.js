@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { addOrder } from "../controller/orderControl.js";
+import { addOrder, uploads } from "../controller/orderControl.js";
 import { addOrderItem } from "../controller/orderControl.js";
 import { getOrder } from "../controller/orderControl.js";
 import { getOrderId } from "../controller/orderControl.js";
@@ -16,7 +16,7 @@ import { userAuth } from "../controller/adminUserAuth.js";
 
 router.use(userAuth);
 
-router.post("/", userAuth, addOrder)
+router.post("/", uploads.array("image", 10), addOrder)
 router.post("/:id", addOrderItem);
 router.get("/", getOrder);
 router.get("/:id", getOrderId);

@@ -164,7 +164,7 @@ const getCart = async (req, res) => {
       },
       {
         $lookup: {
-          from: "productinfos",
+          from: "productinfos", 
           localField: "items.prodId",
           foreignField: "_id",
           as: "productInfo",
@@ -176,7 +176,8 @@ const getCart = async (req, res) => {
       {
         $addFields: {
           "items.productName": "$productInfo.name",
-          "items.price":   "$productInfo.price" ,
+          "items.price": { $toDouble: "$productInfo.price" },
+          "items.image": "$productInfo.image",
           "items.subtotal": {
             $multiply: [
               { $toInt: "$items.quantity" },
@@ -190,14 +191,7 @@ const getCart = async (req, res) => {
           _id: "$_id",
           userId: { $first: "$userId" },
           items: { $push: "$items" },
-          total: {
-            $sum: {
-              $multiply: [
-                { $toInt: "$items.quantity" },
-                { $toDouble: "$productInfo.price" },
-              ],
-            },
-          },
+          total: { $sum: "$items.subtotal" },
         },
       },
       {
@@ -210,14 +204,13 @@ const getCart = async (req, res) => {
       },
     ]);
 
-    console.log(items);
-
     return res.json({ message: "get cart", items });
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
   }
 };
+
 
 const getCartItem = async (req, res) => {
   try {

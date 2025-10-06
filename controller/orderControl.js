@@ -2,6 +2,19 @@ import orderVar from "../model/order.js";
 import prodVar from "../model/product.js";
 import cartVar from "../model/cart.js";
 
+import multer from "multer";
+
+// multer
+const storage = multer.diskStorage({
+  destination: (req, files, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, files, cb) => {
+    cb(null, Date.now() + "-" + files.originalname);
+  },
+});
+const uploads = multer({ storage: storage });
+
 const addOrder = async (req, res) => {
   try {
     console.log("Session:", req.session);
@@ -84,11 +97,17 @@ const addOrderItem = async (req, res) => {
       return res.status(404).json({ message: "Item not found" });
     }
 
+    let images = find.image;
+    if (req.files && req.files.length > 0) {
+      images = req.files.map(file => file.filename);
+    }
+
     const subtotal = existingItem.quantity * price;
 
     const order = [
       {
         prodId: prodId,
+        image: images,
         productName: name,
         quantity: existingItem.quantity,
         price,
@@ -250,3 +269,5 @@ export {
   delOrder,
   cancelOrder,
 };
+
+export { uploads }
