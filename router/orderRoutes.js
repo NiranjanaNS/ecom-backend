@@ -9,7 +9,6 @@ import { updateOrder } from "../controller/orderControl.js";
 import { cancelOrder } from "../controller/orderControl.js";
 import { delOrder } from "../controller/orderControl.js";
 import { getOrderAdmin } from "../controller/orderControl.js";
-import { uploads } from "../controller/prodControl.js";
 
 import { adminAuth } from "../controller/adminUserAuth.js";
 import { userAuth } from "../controller/adminUserAuth.js";
@@ -17,7 +16,7 @@ import { userAuth } from "../controller/adminUserAuth.js";
 
 router.use(userAuth);
 
-router.post("/add", uploads.array("image", 10), addOrder)
+router.post("/add", addOrder)
 router.post("/:id", addOrderItem);
 router.get("/", getOrder);
 router.get("/:id", getOrderId);

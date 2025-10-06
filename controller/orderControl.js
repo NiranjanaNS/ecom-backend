@@ -2,73 +2,61 @@ import orderVar from "../model/order.js";
 import prodVar from "../model/product.js";
 import cartVar from "../model/cart.js";
 
-import mongoose from "mongoose";
-
 const addOrder = async (req, res) => {
   try {
-    if (!req.session?.user?.id) {
-      return res.status(403).json({ message: "User not logged in" });
-    }
+    console.log("Session:", req.session);
+    console.log("User:", req.session?.user);
 
     const userId = req.session.user.id;
+
     const cart = await cartVar.findOne({ userId });
-    if (!cart || !cart.items.length) {
+    if (!cart) {
       return res.status(404).json({ message: "Cart is empty" });
     }
 
-    const prodIds = cart.items.map(i => new mongoose.Types.ObjectId(i.prodId));
+    const prodIds = cart.items.map((item) => item.prodId);
+
     const products = await prodVar.find({ _id: { $in: prodIds } });
 
-    if (!products.length) {
-      return res.status(404).json({ message: "Products not found in database" });
-    }
-
     let total = 0;
-    const orderItems = [];
+    let orderItems = [];
 
     for (let cartItem of cart.items) {
       const productData = products.find(
-        p => p._id.toString() === cartItem.prodId.toString()
+        (p) => p._id.toString() === cartItem.prodId.toString()
       );
 
-      if (!productData) continue;
+      if (!productData) {
+        return res.status(403).json({ message: "product data" });
+      }
 
-      const price = Number(productData.price);
-      const quantity = Number(cartItem.quantity);
-      const subtotal = price * quantity;
+      const subtotal = productData.price * cartItem.quantity;
       total += subtotal;
 
       orderItems.push({
         prodId: productData._id,
         productName: productData.name,
-        productImage: productData.image, 
-        price,
-        quantity,
+        price: productData.price,
+        quantity: cartItem.quantity,
         subtotal,
       });
-    }
-
-    if (!orderItems.length) {
-      return res.status(403).json({ message: "No valid products to place order" });
     }
 
     const newOrder = await orderVar.create({
       userId,
       items: orderItems,
       total,
-      status: "pending",
     });
 
     await cartVar.deleteOne({ userId });
 
-    return res.json({
+    res.json({
       message: "Order placed successfully",
       order: newOrder,
     });
-
   } catch (err) {
-    console.error("Error in addOrder:", err);
-    return res.status(500).json({ message: "Error placing order", error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Error placing order", error: err });
   }
 };
 
@@ -96,17 +84,11 @@ const addOrderItem = async (req, res) => {
       return res.status(404).json({ message: "Item not found" });
     }
 
-    let images = find.image;
-    if (req.files && req.files.length > 0) {
-      images = req.files.map(file => file.filename);
-    }
-
     const subtotal = existingItem.quantity * price;
 
     const order = [
       {
         prodId: prodId,
-        image: images,
         productName: name,
         quantity: existingItem.quantity,
         price,
