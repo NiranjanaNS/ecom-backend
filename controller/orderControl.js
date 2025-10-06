@@ -22,6 +22,8 @@ const addOrder = async (req, res) => {
 
     const userId = req.session.user.id;
 
+    console.log(req.session.user.id, userId)
+
     const cart = await cartVar.findOne({ userId });
     if (!cart) {
       return res.status(404).json({ message: "Cart is empty" });
@@ -40,7 +42,7 @@ const addOrder = async (req, res) => {
       );
 
       if (!productData) {
-        return res.status(403).json({ message: "product data" });
+        return res.status(403).json({ message: "product data not found" });
       }
 
       const subtotal = productData.price * cartItem.quantity;
