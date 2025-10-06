@@ -17,33 +17,38 @@ const uploads = multer({ storage: storage });
 
 const addOrder = async (req, res) => {
   try {
-    console.log("Session:", req.session);
-    console.log("User:", req.session?.user);
+    if (!req.session.user.id) {
+      return res.status(403).json({ message: "User not logged in" });
+    }
+console.log(req.session.user.id, req.session?.user?.id)
 
     const userId = req.session.user.id;
-
-    console.log(req.session.user.id, userId)
-
     const cart = await cartVar.findOne({ userId });
-    if (!cart) {
+    if (!cart || !cart.items.length) {
       return res.status(404).json({ message: "Cart is empty" });
     }
 
-    const prodIds = cart.items.map((item) => item.prodId);
+console.log(userId, cart)
 
+    const prodIds = cart.items.map(i => new mongoose.Types.ObjectId(i.prodId));
     const products = await prodVar.find({ _id: { $in: prodIds } });
+    if (!products.length) {
+      return res.status(404).json({ message: "Products not found in database" });
+    }
+
+console.log(prodIds, products)
 
     let total = 0;
-    let orderItems = [];
+    const orderItems = [];
 
     for (let cartItem of cart.items) {
       const productData = products.find(
-        (p) => p._id.toString() === cartItem.prodId.toString()
+        p => p._id.toString() === cartItem.prodId.toString()
       );
 
-      if (!productData) {
-        return res.status(403).json({ message: "product data not found" });
-      }
+console.log(cartItem, cart.items, productData)
+
+      if (!productData) continue;
 
       const subtotal = productData.price * cartItem.quantity;
       total += subtotal;
@@ -57,21 +62,29 @@ const addOrder = async (req, res) => {
       });
     }
 
+console.log(subtotal, orderItems)
+
+    if (!orderItems.length) {
+      return res.status(403).json({ message: "No valid products to place order" });
+    }
+
     const newOrder = await orderVar.create({
       userId,
       items: orderItems,
       total,
+      status: "pending",
     });
 
     await cartVar.deleteOne({ userId });
 
-    res.json({
+    return res.json({
       message: "Order placed successfully",
       order: newOrder,
     });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error placing order", error: err });
+    console.error("Error in addOrder:", err);
+    return res.status(500).json({ message: "Error placing order", error: err });
   }
 };
 
