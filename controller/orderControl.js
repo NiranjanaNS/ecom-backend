@@ -2,19 +2,7 @@ import orderVar from "../model/order.js";
 import prodVar from "../model/product.js";
 import cartVar from "../model/cart.js";
 
-import multer from "multer";
 import mongoose from "mongoose";
-
-// multer
-const storage = multer.diskStorage({
-  destination: (req, files, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, files, cb) => {
-    cb(null, Date.now() + "-" + files.originalname);
-  },
-});
-const uploads = multer({ storage: storage });
 
 const addOrder = async (req, res) => {
   try {
@@ -30,6 +18,7 @@ const addOrder = async (req, res) => {
 
     const prodIds = cart.items.map(i => new mongoose.Types.ObjectId(i.prodId));
     const products = await prodVar.find({ _id: { $in: prodIds } });
+
     if (!products.length) {
       return res.status(404).json({ message: "Products not found in database" });
     }
@@ -42,7 +31,7 @@ const addOrder = async (req, res) => {
         p => p._id.toString() === cartItem.prodId.toString()
       );
 
-      if (!productData) continue; 
+      if (!productData) continue;
 
       const price = Number(productData.price);
       const quantity = Number(cartItem.quantity);
@@ -52,6 +41,7 @@ const addOrder = async (req, res) => {
       orderItems.push({
         prodId: productData._id,
         productName: productData.name,
+        productImage: productData.image, 
         price,
         quantity,
         subtotal,
@@ -278,5 +268,3 @@ export {
   delOrder,
   cancelOrder,
 };
-
-export { uploads }

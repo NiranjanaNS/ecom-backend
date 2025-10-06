@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { addOrder, uploads } from "../controller/orderControl.js";
+import { addOrder } from "../controller/orderControl.js";
 import { addOrderItem } from "../controller/orderControl.js";
 import { getOrder } from "../controller/orderControl.js";
 import { getOrderId } from "../controller/orderControl.js";
@@ -9,6 +9,7 @@ import { updateOrder } from "../controller/orderControl.js";
 import { cancelOrder } from "../controller/orderControl.js";
 import { delOrder } from "../controller/orderControl.js";
 import { getOrderAdmin } from "../controller/orderControl.js";
+import { uploads } from "../controller/prodControl.js";
 
 import { adminAuth } from "../controller/adminUserAuth.js";
 import { userAuth } from "../controller/adminUserAuth.js";
